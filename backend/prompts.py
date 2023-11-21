@@ -45,3 +45,31 @@ def assemble_prompt(image_data_url):
             ],
         },
     ]
+
+def assemble_prompt_multiImg(image_data_url_list):
+    content = []
+
+    for image_data_url in image_data_url_list:
+        content.append(
+            {
+                "type": "image_url",
+                "image_url": {"url": image_data_url, "detail": "high"},
+            }
+        )
+
+    content.append(
+        {
+            "type": "text",
+            "text": USER_PROMPT,
+        }
+    )
+
+    out = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {
+            "role": "user",
+            "content": content
+        },
+    ]
+
+    return out

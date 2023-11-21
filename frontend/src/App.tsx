@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, createRef } from "react";
+
 import ImageUpload from "./components/ImageUpload";
 import CodePreview from "./components/CodePreview";
 import Preview from "./components/Preview";
@@ -24,6 +25,7 @@ import { OnboardingNote } from "./components/OnboardingNote";
 import { usePersistedState } from "./hooks/usePersistedState";
 import { UrlInputSection } from "./components/UrlInputSection";
 import TermsOfServiceDialog from "./components/TermsOfServiceDialog";
+import { useScreenshot } from 'use-react-screenshot'
 
 function App() {
   const [appState, setAppState] = useState<"INITIAL" | "CODING" | "CODE_READY">(
@@ -38,11 +40,14 @@ function App() {
     {
       openAiApiKey: null,
       screenshotOneApiKey: null,
-      isImageGenerationEnabled: true,
+      isImageGenerationEnabled: false,
       editorTheme: "cobalt",
     },
     "setting"
   );
+  const ref = createRef<HTMLDivElement>()
+  const [screenshot, takeScreenshot] = useScreenshot()
+
 
   const downloadCode = () => {
     // Create a blob from the generated code
@@ -91,7 +96,7 @@ function App() {
     if (referenceImages.length > 0) {
       doGenerateCode({
         generationType: "create",
-        image: referenceImages[0],
+        image: [referenceImages[0]],
       });
     }
   }
@@ -102,13 +107,38 @@ function App() {
 
     doGenerateCode({
       generationType: "update",
-      image: referenceImages[0],
+      image: [referenceImages[0]],
       history: updatedHistory,
     });
 
     setHistory(updatedHistory);
     setGeneratedCode("");
     setUpdateInstruction("");
+  }
+
+  function doAutoUpdate() {
+    takeScreenshot(ref.current).then(screenshot => {
+      console.log(screenshot)
+
+      
+
+    // setUpdateInstruction("Rigiorously reflect on your work by comparing it with the original reference. Based on your reflection, implement improvements to your code in order to better match the reference.");
+    const updatedHistory = [...history, generatedCode, updateInstruction+". \nRigiorously reflect on your work by comparing it with the original reference. Based on your reflection, implement improvements to your code in order to better match the reference. \
+    Return only the full code in <html></html> tags. \
+    Do not include markdown \"```\" or \"```html\" at the start or end."];
+
+    doGenerateCode({
+      generationType: "update",
+      image: [referenceImages[0], screenshot],
+      history: updatedHistory,
+    });
+    
+    setHistory(updatedHistory);
+    setGeneratedCode("");
+    setUpdateInstruction("");
+
+    })
+
   }
 
   return (
@@ -152,6 +182,7 @@ function App() {
                       value={updateInstruction}
                     />
                     <Button onClick={doUpdate}>Update</Button>
+                    <Button onClick={doAutoUpdate}>Auto Reflect and Update</Button>
                   </div>
                   <div className="flex items-center gap-x-2 mt-2">
                     <Button
@@ -237,7 +268,9 @@ function App() {
                 </TabsList>
               </div>
               <TabsContent value="desktop">
-                <Preview code={generatedCode} device="desktop" />
+                <div ref={ref}>
+                <Preview code={generatedCode} device="desktop"/>
+                </div>
               </TabsContent>
               <TabsContent value="mobile">
                 <Preview code={generatedCode} device="mobile" />

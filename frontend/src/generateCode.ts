@@ -6,7 +6,7 @@ const ERROR_MESSAGE =
 
 export interface CodeGenerationParams {
   generationType: "create" | "update";
-  image: string;
+  image: string[];
   history?: string[];
   // isImageGenerationEnabled: boolean; // TODO: Merge with Settings type in types.ts
 }

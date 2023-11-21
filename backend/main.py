@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from llm import stream_openai_response
 from mock import mock_completion
 from image_generation import create_alt_url_mapping, generate_images
-from prompts import assemble_prompt
+from prompts import assemble_prompt, assemble_prompt_multiImg
 from routes import screenshot
 
 app = FastAPI(openapi_url=None, docs_url=None, redoc_url=None)
@@ -96,7 +96,9 @@ async def stream_code_test(websocket: WebSocket):
     async def process_chunk(content):
         await websocket.send_json({"type": "chunk", "value": content})
 
-    prompt_messages = assemble_prompt(params["image"])
+    prompt_messages = assemble_prompt_multiImg(params["image"])
+    print('hello')
+    print(prompt_messages)
 
     # Image cache for updates so that we don't have to regenerate images
     image_cache = {}

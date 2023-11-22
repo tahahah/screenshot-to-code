@@ -46,7 +46,7 @@ function App() {
     "setting"
   );
   const ref = createRef<HTMLDivElement>()
-  const [screenshot, takeScreenshot] = useScreenshot()
+  const [/* screenshot */, takeScreenshot] = useScreenshot()
 
 
   const downloadCode = () => {

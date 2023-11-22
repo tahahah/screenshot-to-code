@@ -97,8 +97,6 @@ async def stream_code_test(websocket: WebSocket):
         await websocket.send_json({"type": "chunk", "value": content})
 
     prompt_messages = assemble_prompt_multiImg(params["image"])
-    print('hello')
-    print(prompt_messages)
 
     # Image cache for updates so that we don't have to regenerate images
     image_cache = {}

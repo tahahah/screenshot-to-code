@@ -116,30 +116,30 @@ function App() {
     setUpdateInstruction("");
   }
 
-  function doAutoUpdate() {
-    takeScreenshot(ref.current).then(screenshot => {
-      console.log(screenshot)
+async function doAutoUpdate() {
+  const screenshot = await takeScreenshot(ref.current);
+  
 
-      
+  const updatedHistory = [
+    ...history,
+    generatedCode,
+    `${updateInstruction}. 
+    Rigorously reflect on your work by comparing it with the original reference. 
+    Based on your reflection, implement improvements to your code in order to better match the reference. 
+    Return only the full code in <html></html> tags. 
+    Do not include markdown "\`\`\`" or "\`\`\`html" at the start or end.`
+  ];
 
-    // setUpdateInstruction("Rigiorously reflect on your work by comparing it with the original reference. Based on your reflection, implement improvements to your code in order to better match the reference.");
-    const updatedHistory = [...history, generatedCode, updateInstruction+". \nRigiorously reflect on your work by comparing it with the original reference. Based on your reflection, implement improvements to your code in order to better match the reference. \
-    Return only the full code in <html></html> tags. \
-    Do not include markdown \"```\" or \"```html\" at the start or end."];
+  doGenerateCode({
+    generationType: "update",
+    image: [referenceImages[0], screenshot],
+    history: updatedHistory,
+  });
 
-    doGenerateCode({
-      generationType: "update",
-      image: [referenceImages[0], screenshot],
-      history: updatedHistory,
-    });
-    
-    setHistory(updatedHistory);
-    setGeneratedCode("");
-    setUpdateInstruction("");
-
-    })
-
-  }
+  setHistory(updatedHistory);
+  setGeneratedCode("");
+  setUpdateInstruction("");
+}
 
   return (
     <div className="mt-2">
